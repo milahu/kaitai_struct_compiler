@@ -311,6 +311,48 @@ class RustCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     out.inc
   }
 
+  // TODO fix merge?
+  // serialization branch:
+  /*
+  override def attrProcess(proc: ProcessExpr, varSrc: Identifier, varDest: Identifier, rep: RepeatSpec): Unit = {
+    val srcExpr = getRawIdExpr(varSrc, rep)
+
+    val expr = proc match {
+      case ProcessXor(xorValue) =>
+        val procName = translator.detectType(xorValue) match {
+          case _: IntType => "processXorOne"
+          case _: BytesType => "processXorMany"
+        }
+        s"$kstreamName::$procName($srcExpr, ${expression(xorValue)})"
+      case ProcessZlib =>
+        s"$kstreamName::processZlib($srcExpr);"
+      case ProcessRotate(isLeft, rotValue) =>
+        val expr = if (isLeft) {
+          expression(rotValue)
+        } else {
+          s"8 - (${expression(rotValue)})"
+        }
+        s"$kstreamName::processRotateLeft($srcExpr, $expr, 1)"
+      case ProcessCustom(name, args) =>
+        val procClass = if (name.length == 1) {
+          val onlyName = name.head
+          val className = type2class(onlyName)
+          importList.add(s"$onlyName::$className")
+          className
+        } else {
+          val pkgName = type2classAbs(name.init)
+          val className = type2class(name.last)
+          importList.add(s"$pkgName::$className")
+          s"$pkgName::$className"
+        }
+
+        out.puts(s"let _process = $procClass::new(${args.map(expression).mkString(", ")});")
+        s"_process.decode($srcExpr)"
+    }
+    handleAssignment(varDest, expr, rep, false)
+  }
+  */
+
   override def condRepeatUntilHeader(id: Identifier,
                                      io: String,
                                      dataType: DataType,

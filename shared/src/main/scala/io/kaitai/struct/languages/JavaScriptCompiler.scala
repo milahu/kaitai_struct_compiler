@@ -17,8 +17,7 @@ class JavaScriptCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     with UniversalDoc
     with AllocateIOLocalVar
     with EveryReadIsExpression
-    with SwitchIfOps
-    with FixedContentsUsingArrayByteLiteral {
+    with SwitchIfOps {
   import JavaScriptCompiler._
 
   override val translator = new JavaScriptTranslator(typeProvider, importList)
@@ -189,11 +188,6 @@ class JavaScriptCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     out.puts("}")
   }
 
-  override def attrFixedContentsParse(attrName: Identifier, contents: String): Unit = {
-    out.puts(s"${privateMemberName(attrName)} = " +
-      s"$normalIO.ensureFixedContents($contents);")
-  }
-
   override def attrProcess(proc: ProcessExpr, varSrc: Identifier, varDest: Identifier, rep: RepeatSpec): Unit = {
     val srcExpr = getRawIdExpr(varSrc, rep)
 
@@ -295,7 +289,7 @@ class JavaScriptCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
   }
 
   // TODO: replace this with UniversalFooter
-  override def condIfFooter(expr: expr): Unit = {
+  override def condIfFooter: Unit = {
     out.dec
     out.puts("}")
   }
@@ -592,6 +586,8 @@ class JavaScriptCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
 
   override def ksErrorName(err: KSError): String = JavaScriptCompiler.ksErrorName(err)
 
+  // TODO fix merge?
+  /*
   override def attrValidateExpr(
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
@@ -599,6 +595,25 @@ class JavaScriptCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     errArgs: List[Ast.expr]
   ): Unit =
     attrValidate(s"!(${translator.translate(checkExpr)})", attr, err, errArgs)
+  */
+  override def attrValidateExpr(
+    attr: AttrLikeSpec,
+    checkExpr: Ast.expr,
+    err: KSError,
+    useIo: Boolean,
+    expected: Option[Ast.expr] = None
+  ): Unit = {
+    val errArgsStr = expected.map(expression) ++ List(
+      expression(Ast.expr.InternalName(attr.id)),
+      if (useIo) expression(Ast.expr.InternalName(IoIdentifier)) else "null",
+      expression(Ast.expr.Str(attr.path.mkString("/", "/", "")))
+    )
+    out.puts(s"if (!(${translator.translate(checkExpr)})) {")
+    out.inc
+    out.puts(s"throw new ${ksErrorName(err)}(${errArgsStr.mkString(", ")});")
+    out.dec
+    out.puts("}")
+  }
 
   override def attrValidateInEnum(
     attr: AttrLikeSpec,

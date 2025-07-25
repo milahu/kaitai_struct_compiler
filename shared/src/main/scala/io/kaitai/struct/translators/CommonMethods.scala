@@ -255,8 +255,10 @@ abstract trait CommonMethods[T] extends TypeDetector {
   def strReverse(s: Ast.expr): T
   def strToInt(s: Ast.expr, base: Ast.expr): T
   def strSubstring(s: Ast.expr, from: Ast.expr, to: Ast.expr): T
+  def strToBytes(s: Ast.expr, encoding: Ast.expr): T = ???
 
   def bytesToStr(value: Ast.expr, encoding: String): T
+  def bytesIndexOf(value: Ast.expr, expr: Ast.expr): T = ???
 
   def intToStr(value: Ast.expr): T
 

@@ -18,7 +18,6 @@ class RubyCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     with UpperCamelCaseClasses
     with AllocateIOLocalVar
     with EveryReadIsExpression
-    with FixedContentsUsingArrayByteLiteral
     with NoNeedForFullClassPath {
 
   import RubyCompiler._
@@ -201,9 +200,6 @@ class RubyCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     out.dec
     out.puts("end")
   }
-
-  override def attrFixedContentsParse(attrName: Identifier, contents: String): Unit =
-    out.puts(s"${privateMemberName(attrName)} = $normalIO.ensure_fixed_contents($contents)")
 
   override def attrProcess(proc: ProcessExpr, varSrc: Identifier, varDest: Identifier, rep: RepeatSpec): Unit = {
     val srcExpr = getRawIdExpr(varSrc, rep)
@@ -508,6 +504,8 @@ class RubyCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
 
   override def ksErrorName(err: KSError): String = RubyCompiler.ksErrorName(err)
 
+  // TODO fix merge?
+  /*
   override def attrValidateExpr(
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
@@ -515,6 +513,21 @@ class RubyCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     errArgs: List[Ast.expr]
   ): Unit =
     attrValidate(s"not ${translator.translate(checkExpr)}", err, errArgs)
+  */
+  override def attrValidateExpr(
+    attr: AttrLikeSpec,
+    checkExpr: Ast.expr,
+    err: KSError,
+    useIo: Boolean,
+    expected: Option[Ast.expr] = None
+  ): Unit = {
+    val errArgsStr = expected.map(expression) ++ List(
+      expression(Ast.expr.InternalName(attr.id)),
+      if (useIo) expression(Ast.expr.InternalName(IoIdentifier)) else "nil",
+      expression(Ast.expr.Str(attr.path.mkString("/", "/", "")))
+    )
+    out.puts(s"raise ${ksErrorName(err)}.new(${errArgsStr.mkString(", ")}) if not ${translator.translate(checkExpr)}")
+  }
 
   override def attrValidateInEnum(
     attr: AttrLikeSpec,

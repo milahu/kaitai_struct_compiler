@@ -64,6 +64,18 @@ class PythonTranslator(provider: TypeProvider, importList: ImportList, config: R
     }
   }
 
+  override def doNumericCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr): String =
+    s"(${super.doNumericCompareOp(left, op, right)})"
+
+  override def doStrCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr): String =
+    s"(${super.doStrCompareOp(left, op, right)})"
+
+  override def doEnumCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr): String =
+    s"(${super.doEnumCompareOp(left, op, right)})"
+
+  override def doBytesCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr): String =
+    s"(${super.doBytesCompareOp(left, op, right)})"
+
   override def doStringLiteral(s: String): String = "u" + super.doStringLiteral(s)
   override def doBoolLiteral(n: Boolean): String = if (n) "True" else "False"
 
@@ -146,6 +158,16 @@ class PythonTranslator(provider: TypeProvider, importList: ImportList, config: R
     s"int(${translate(v)})"
   override def intToStr(i: Ast.expr): String =
     s"str(${translate(i)})"
+
+  // TODO fix merge?
+  // serialization branch:
+  /*
+  override def bytesToStr(bytesExpr: String, encoding: String): String =
+    s"""($bytesExpr).decode("$encoding")"""
+  override def bytesIndexOf(b: Ast.expr, byte: Ast.expr): String =
+    s"${PythonCompiler.kstreamName}.byte_array_index_of(${translate(b)}, ${translate(byte)})"
+  */
+  // master branch:
   override def bytesToStr(bytesExpr: String, encoding: String): String =
     s"""($bytesExpr).decode(${doStringLiteral(encoding)})"""
 
@@ -168,7 +190,13 @@ class PythonTranslator(provider: TypeProvider, importList: ImportList, config: R
   override def strReverse(value: Ast.expr): String =
     s"(${translate(value)})[::-1]"
   override def strSubstring(s: Ast.expr, from: Ast.expr, to: Ast.expr): String =
+<<<<<<< HEAD
     s"${translate(s, METHOD_PRECEDENCE)}[${translate(from)}:${translate(to)}]"
+=======
+    s"(${translate(s)})[${translate(from)}:${translate(to)}]"
+  override def strToBytes(s: Ast.expr, encoding: Ast.expr): String =
+    s"(${translate(s)}).encode(${translate(encoding)})"
+>>>>>>> serialization
 
   override def arrayFirst(a: Ast.expr): String =
     s"${translate(a)}[0]"

@@ -16,7 +16,6 @@ class PHPCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     with AllocateIOLocalVar
     with UniversalFooter
     with UniversalDoc
-    with FixedContentsUsingArrayByteLiteral
     with EveryReadIsExpression {
 
   import PHPCompiler._
@@ -202,9 +201,6 @@ class PHPCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     out.dec
     out.puts("}")
   }
-
-  override def attrFixedContentsParse(attrName: Identifier, contents: String): Unit =
-    out.puts(s"${privateMemberName(attrName)} = $normalIO->ensureFixedContents($contents);")
 
   override def attrProcess(proc: ProcessExpr, varSrc: Identifier, varDest: Identifier, rep: RepeatSpec): Unit = {
     val srcExpr = getRawIdExpr(varSrc, rep)
@@ -515,6 +511,8 @@ class PHPCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
 
   override def ksErrorName(err: KSError): String = PHPCompiler.ksErrorName(err)
 
+  // TODO fix merge?
+  /*
   override def attrValidateExpr(
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
@@ -522,6 +520,25 @@ class PHPCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     errArgs: List[Ast.expr]
   ): Unit =
     attrValidate(s"!(${translator.translate(checkExpr)})", err, errArgs)
+  */
+  override def attrValidateExpr(
+    attr: AttrLikeSpec,
+    checkExpr: Ast.expr,
+    err: KSError,
+    useIo: Boolean,
+    expected: Option[Ast.expr] = None
+  ): Unit = {
+    val errArgsStr = expected.map(expression) ++ List(
+      expression(Ast.expr.InternalName(attr.id)),
+      if (useIo) expression(Ast.expr.InternalName(IoIdentifier)) else "null",
+      expression(Ast.expr.Str(attr.path.mkString("/", "/", "")))
+    )
+    out.puts(s"if (!(${translator.translate(checkExpr)})) {")
+    out.inc
+    out.puts(s"throw new ${ksErrorName(err)}(${errArgsStr.mkString(", ")});")
+    out.dec
+    out.puts("}")
+  }
 
   override def attrValidateInEnum(
     attr: AttrLikeSpec,
@@ -539,7 +556,7 @@ class PHPCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     val errArgsStr = errArgs.map(translator.translate).mkString(", ")
     out.puts(s"if ($failCondExpr) {")
     out.inc
-    out.puts(s"throw new ${ksErrorName(err)}($errArgsStr);")
+    out.puts(s"throw new ${ksErrorName(err)}(${errArgsStr.mkString(", ")});")
     out.dec
     out.puts("}")
   }
