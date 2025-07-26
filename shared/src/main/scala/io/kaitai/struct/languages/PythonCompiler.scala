@@ -636,6 +636,21 @@ class PythonCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     expr2
   }
 
+  // TODO refactor with "def intOfBytes" in EveryWriteIsExpression.scala
+  override def intOfBytes(bytes: Seq[Byte]): Int = {
+    require(bytes.length <= 4, "Byte sequence too long for Int conversion")
+    // this assumes big-endian (most significant byte first)
+    bytes.foldLeft(0) { (acc, byte) => (acc << 8) | (byte & 0xff) }
+  }
+
+  override def intOfBytes(bytes: Option[Seq[Byte]]): Option[Int] = {
+    bytes.map { bs =>
+      require(bs.length <= 4, "Byte sequence too long for Int conversion")
+      // this assumes big-endian (most significant byte first)
+      bs.foldLeft(0) { (acc, byte) => (acc << 8) | (byte & 0xff) }
+    }
+  }
+
   override def userTypeDebugRead(id: String, dataType: DataType, assignType: DataType): Unit =
     out.puts(s"$id._read()")
 
