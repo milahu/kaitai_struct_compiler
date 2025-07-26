@@ -444,8 +444,9 @@ class LuaCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
     err: KSError,
+    errArgs: List[Ast.expr],
     useIo: Boolean,
-    expected: Option[Ast.expr] = None
+    // expected: Option[Ast.expr] = None
   ): Unit = {
     val actualStr = expression(Ast.expr.InternalName(attr.id))
     out.puts(s"if not(${translator.translate(checkExpr)}) then")
@@ -467,7 +468,8 @@ class LuaCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     et: EnumType,
     valueExpr: Ast.expr,
     err: ValidationNotInEnumError,
-    errArgs: List[Ast.expr]
+    errArgs: List[Ast.expr],
+    useIo: Boolean,
   ): Unit = {
     // NOTE: this condition works for now because we haven't implemented
     // https://github.com/kaitai-io/kaitai_struct/issues/778 for Lua yet, but
