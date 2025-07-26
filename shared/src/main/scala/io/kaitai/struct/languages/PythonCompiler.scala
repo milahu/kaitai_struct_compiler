@@ -194,7 +194,11 @@ class PythonCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
         out.inc
         // FIXME: remove super() args when dropping support for Python 2 (see
         // https://pylint.readthedocs.io/en/v2.16.2/user_guide/messages/refactor/super-with-arguments.html)
-        out.puts(s"super(${types2class(typeProvider.nowClass.name)}, self)._write__seq(io)")
+        // TODO fix merge? does this make sense?
+        // typeProvider.nowClass.isExternal(typeProvider.nowClass)
+        // is this always true?
+        // is this always false?
+        out.puts(s"super(${types2class(typeProvider.nowClass.name, typeProvider.nowClass.isExternal(typeProvider.nowClass))}, self)._write__seq(io)")
     }
   }
 
@@ -936,7 +940,8 @@ class PythonCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     } else {
       ""
     }
-    s"$prefix${types2class(name)}"
+    // TODO fix merge? maybe this should be t.isExternal(t.classSpec)
+    s"$prefix${types2class(name, t.isExternal(typeProvider.nowClass))}"
   }
 }
 
