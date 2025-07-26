@@ -1080,7 +1080,7 @@ class CppCompiler(
     errArgs: List[Ast.expr],
     useIo: Boolean,
     // TODO fix merge? add parameter "expected" at call site?
-    expected: Option[Ast.expr] = None,
+    // expected: Option[Ast.expr] = None,
   ): Unit = {
 
     // TODO fix merge?
@@ -1088,7 +1088,9 @@ class CppCompiler(
     /*
     val errArgsStr = errArgs.map(translator.translate).mkString(", ")
     */
-    val errArgsStr = expected.map(expression) ++ List(
+    // TODO what is "expected"? use "errArgs"?
+    // val errArgsStr = expected.map(expression) ++ List(
+    val errArgsStr = List(
       expression(Ast.expr.InternalName(attr.id)),
       if (useIo) expression(Ast.expr.InternalName(IoIdentifier)) else nullPtr,
       expression(Ast.expr.Str(attr.path.mkString("/", "/", "")))
