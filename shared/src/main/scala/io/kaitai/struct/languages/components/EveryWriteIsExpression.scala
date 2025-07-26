@@ -218,6 +218,20 @@ trait EveryWriteIsExpression
     attrBytesTypeWrite2(id, io, bytes, t.bytes, checksShouldDependOnIo, exprTypeOpt)
   }
 
+  def intOfBytes(bytes: Seq[Byte]): Int = {
+    require(bytes.length <= 4, "Byte sequence too long for Int conversion")
+    // this assumes big-endian (most significant byte first)
+    bytes.foldLeft(0) { (acc, byte) => (acc << 8) | (byte & 0xff) }
+  }
+
+  def intOfBytes(bytes: Option[Seq[Byte]]): Option[Int] = {
+    bytes.map { bs =>
+      require(bs.length <= 4, "Byte sequence too long for Int conversion")
+      // this assumes big-endian (most significant byte first)
+      bs.foldLeft(0) { (acc, byte) => (acc << 8) | (byte & 0xff) }
+    }
+  }
+
   def attrBytesTypeWrite2(
     id: Identifier,
     io: String,
@@ -229,14 +243,14 @@ trait EveryWriteIsExpression
     attrBytesCheck(id, expr, t, checksShouldDependOnIo)
     t match {
       case bt: BytesEosType =>
-        attrBytesLimitWrite2(io, expr, bt, exprIORemainingSize(io), bt.padRight, bt.terminator, bt.include, exprTypeOpt)
+        attrBytesLimitWrite2(io, expr, bt, exprIORemainingSize(io), bt.padRight, intOfBytes(bt.terminator), bt.include, exprTypeOpt)
         attrIsEofCheck(id, true, io)
       case bt: BytesLimitType =>
-        attrBytesLimitWrite2(io, expr, bt, expression(bt.size), bt.padRight, bt.terminator, bt.include, exprTypeOpt)
+        attrBytesLimitWrite2(io, expr, bt, expression(bt.size), bt.padRight, intOfBytes(bt.terminator), bt.include, exprTypeOpt)
       case t: BytesTerminatedType =>
         attrPrimitiveWrite(io, expr, t, None, exprTypeOpt)
         if (t.include) {
-          val actualIndexOfTerm = exprByteArrayIndexOf(expr, t.terminator)
+          val actualIndexOfTerm = exprByteArrayIndexOf(expr, intOfBytes(t.terminator))
           if (!t.eosError) {
             condIfHeader(Ast.expr.Compare(actualIndexOfTerm, Ast.cmpop.Eq, Ast.expr.IntNum(-1)))
             attrIsEofCheck(id, true, io)
@@ -252,7 +266,7 @@ trait EveryWriteIsExpression
             }
             pushPos(io)
           }
-          attrPrimitiveWrite(io, Ast.expr.IntNum(t.terminator), Int1Type(false), None, None)
+          attrPrimitiveWrite(io, Ast.expr.IntNum(intOfBytes(t.terminator)), Int1Type(false), None, None)
           if (!t.consume) {
             popPos(io)
             if (t.eosError) {
