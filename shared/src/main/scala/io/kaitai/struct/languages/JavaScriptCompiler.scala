@@ -600,10 +600,12 @@ class JavaScriptCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
     err: KSError,
+    errArgs: List[Ast.expr],
     useIo: Boolean,
-    expected: Option[Ast.expr] = None
+    // expected: Option[Ast.expr] = None
   ): Unit = {
-    val errArgsStr = expected.map(expression) ++ List(
+    // val errArgsStr = expected.map(expression) ++ List(
+    val errArgsStr = List(
       expression(Ast.expr.InternalName(attr.id)),
       if (useIo) expression(Ast.expr.InternalName(IoIdentifier)) else "null",
       expression(Ast.expr.Str(attr.path.mkString("/", "/", "")))
@@ -620,7 +622,8 @@ class JavaScriptCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     et: EnumType,
     valueExpr: Ast.expr,
     err: ValidationNotInEnumError,
-    errArgs: List[Ast.expr]
+    errArgs: List[Ast.expr],
+    useIo: Boolean,
   ): Unit = {
     val enumSpec = et.enumSpec.get
     val enumRef = types2class(enumSpec.name, enumSpec.isExternal(typeProvider.nowClass))
