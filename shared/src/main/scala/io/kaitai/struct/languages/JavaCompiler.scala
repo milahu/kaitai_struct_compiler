@@ -1127,16 +1127,16 @@ class JavaCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
   override def localTemporaryName(id: Identifier): String = s"_t_${idToStr(id)}"
 
   def kaitaiType2JavaType(attrType: DataType): String =
-    JavaCompiler.kaitaiType2JavaType(attrType, importList)
+    kaitaiType2JavaType(attrType, importList)
 
   def kaitaiType2JavaType(attrType: DataType, isNullable: Boolean): String =
-    JavaCompiler.kaitaiType2JavaType(attrType, isNullable, importList)
+    kaitaiType2JavaType(attrType, isNullable, importList)
 
   def kaitaiType2JavaTypePrim(attrType: DataType): String =
-    JavaCompiler.kaitaiType2JavaTypePrim(attrType, importList)
+    kaitaiType2JavaTypePrim(attrType, importList)
 
   def kaitaiType2JavaTypeBoxed(attrType: DataType): String =
-    JavaCompiler.kaitaiType2JavaTypeBoxed(attrType, importList)
+    kaitaiType2JavaTypeBoxed(attrType, importList)
 
   override def ksErrorName(err: KSError): String = err match {
     case EndOfStreamError => config.java.endOfStreamErrorClass
