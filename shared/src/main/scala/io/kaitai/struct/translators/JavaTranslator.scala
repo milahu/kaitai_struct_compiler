@@ -110,9 +110,6 @@ class JavaTranslator(provider: TypeProvider, importList: ImportList, config: Run
     }
   }
 
-  // TODO fix merge?
-  // serialization branch:
-  /*
   override def arraySubscript(container: expr, idx: expr): String =
     s"${translate(container)}.get(${doCast(idx, CalcIntType)})"
   override def doIfExp(condition: expr, ifTrue: expr, ifFalse: expr): String =
@@ -127,14 +124,6 @@ class JavaTranslator(provider: TypeProvider, importList: ImportList, config: Run
     else
       compiler.castIfNeeded(translate(value), AnyType, typeName)
   }
-  */
-  // master branch:
-  override def arraySubscript(container: expr, idx: expr): String =
-    s"${translate(container)}.get((int) ${translate(idx, METHOD_PRECEDENCE)})"
-  override def doIfExp(condition: expr, ifTrue: expr, ifFalse: expr): String =
-    s"(${translate(condition)} ? ${translate(ifTrue)} : ${translate(ifFalse)})"
-  override def doCast(value: Ast.expr, typeName: DataType): String =
-    s"((${JavaCompiler.kaitaiType2JavaType(typeName, importList)}) (${translate(value)}))"
 
   // Predefined methods of various types
   override def strToInt(s: expr, base: expr): String =
