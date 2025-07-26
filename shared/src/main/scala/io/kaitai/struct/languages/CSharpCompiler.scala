@@ -649,7 +649,9 @@ class CSharpCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     et: EnumType,
     valueExpr: Ast.expr,
     err: ValidationNotInEnumError,
-    errArgs: List[Ast.expr]
+    errArgs: List[Ast.expr],
+    // TODO fix merge? use parameter "useIo"?
+    useIo: Boolean,
   ): Unit = {
     // TODO: the non-generic overload `Enum.IsDefined(Type, object)` used here
     // is supposedly slow because it uses reflection (see
