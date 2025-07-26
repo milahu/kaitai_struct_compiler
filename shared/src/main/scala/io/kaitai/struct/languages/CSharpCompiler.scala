@@ -613,19 +613,29 @@ class CSharpCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
   ): Unit =
     attrValidate(s"!(${translator.translate(checkExpr)})", err, errArgs)
   */
+
   // serialization branch:
   override def attrValidateExpr(
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
     err: KSError,
+    errArgs: List[Ast.expr],
     useIo: Boolean,
-    expected: Option[Ast.expr] = None
+    // TODO fix merge? what is "expected"?
+    // expected: Option[Ast.expr] = None
   ): Unit = {
-    val errArgsStr = expected.map(expression) ++ List(
+    // TODO move this block to "def attrValidate"?
+    // TODO fix merge? use "errArgs"
+    // val errArgsStr = errArgs.map(translator.translate).mkString(", ")
+    // TODO fix merge? what is "expected"?
+    // val errArgsStr = expected.map(expression) ++ List(
+    val errArgsStr = List(
       expression(Ast.expr.InternalName(attr.id)),
       if (useIo) expression(Ast.expr.InternalName(IoIdentifier)) else "null",
       expression(Ast.expr.Str(attr.path.mkString("/", "/", "")))
     )
+    // val failCondExpr = s"!(${translator.translate(checkExpr)})"
+    // out.puts(s"if ($failCondExpr)")
     out.puts(s"if (!(${translator.translate(checkExpr)}))")
     out.puts("{")
     out.inc
