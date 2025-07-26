@@ -64,17 +64,17 @@ class PythonTranslator(provider: TypeProvider, importList: ImportList, config: R
     }
   }
 
-  override def doNumericCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr): String =
-    s"(${super.doNumericCompareOp(left, op, right)})"
+  override def doNumericCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr, extPrec: Int): String =
+    s"(${super.doNumericCompareOp(left, op, right, extPrec)})"
 
-  override def doStrCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr): String =
-    s"(${super.doStrCompareOp(left, op, right)})"
+  override def doStrCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr, extPrec: Int): String =
+    s"(${super.doStrCompareOp(left, op, right, extPrec)})"
 
-  override def doEnumCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr): String =
-    s"(${super.doEnumCompareOp(left, op, right)})"
+  override def doEnumCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr, extPrec: Int): String =
+    s"(${super.doEnumCompareOp(left, op, right, extPrec)})"
 
-  override def doBytesCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr): String =
-    s"(${super.doBytesCompareOp(left, op, right)})"
+  override def doBytesCompareOp(left: Ast.expr, op: Ast.cmpop, right: Ast.expr, extPrec: Int): String =
+    s"(${super.doBytesCompareOp(left, op, right, extPrec)})"
 
   override def doStringLiteral(s: String): String = "u" + super.doStringLiteral(s)
   override def doBoolLiteral(n: Boolean): String = if (n) "True" else "False"
