@@ -1197,7 +1197,9 @@ class JavaCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     et: EnumType,
     valueExpr: Ast.expr,
     err: ValidationNotInEnumError,
-    errArgs: List[Ast.expr]
+    errArgs: List[Ast.expr],
+    // TODO use parameter "useIo"?
+    useIo: Boolean,
   ): Unit = {
     // NOTE: this condition works for now because we haven't implemented
     // https://github.com/kaitai-io/kaitai_struct/issues/778 for Java yet, but
