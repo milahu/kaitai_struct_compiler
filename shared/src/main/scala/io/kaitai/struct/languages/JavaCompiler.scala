@@ -1174,10 +1174,13 @@ class JavaCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
     err: KSError,
+    errArgs: List[Ast.expr],
     useIo: Boolean,
-    expected: Option[Ast.expr] = None
+    // expected: Option[Ast.expr] = None
   ): Unit = {
-    val errArgsStr = expected.map(expression) ++ List(
+    // TODO replace "expected" with "errArgs"?
+    // val errArgsStr = expected.map(expression) ++ List(
+    val errArgsStr = List(
       expression(Ast.expr.InternalName(attr.id)),
       if (useIo) expression(Ast.expr.InternalName(IoIdentifier)) else "null",
       expression(Ast.expr.Str(attr.path.mkString("/", "/", "")))
