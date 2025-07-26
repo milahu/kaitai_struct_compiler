@@ -189,14 +189,15 @@ class PythonTranslator(provider: TypeProvider, importList: ImportList, config: R
     s"len(${translate(value)})"
   override def strReverse(value: Ast.expr): String =
     s"(${translate(value)})[::-1]"
+  // TODO fix merge?
+  /*
   override def strSubstring(s: Ast.expr, from: Ast.expr, to: Ast.expr): String =
-<<<<<<< HEAD
     s"${translate(s, METHOD_PRECEDENCE)}[${translate(from)}:${translate(to)}]"
-=======
+  */
+  override def strSubstring(s: Ast.expr, from: Ast.expr, to: Ast.expr): String =
     s"(${translate(s)})[${translate(from)}:${translate(to)}]"
   override def strToBytes(s: Ast.expr, encoding: Ast.expr): String =
     s"(${translate(s)}).encode(${translate(encoding)})"
->>>>>>> serialization
 
   override def arrayFirst(a: Ast.expr): String =
     s"${translate(a)}[0]"
