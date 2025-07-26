@@ -233,6 +233,21 @@ trait GenericChecks extends LanguageCompiler with EveryReadIsExpression {
     )
   }
 
+  // TODO refactor with "def intOfBytes" in EveryWriteIsExpression.scala
+  def intOfBytes(bytes: Seq[Byte]): Int = {
+    require(bytes.length <= 4, "Byte sequence too long for Int conversion")
+    // this assumes big-endian (most significant byte first)
+    bytes.foldLeft(0) { (acc, byte) => (acc << 8) | (byte & 0xff) }
+  }
+
+  def intOfBytes(bytes: Option[Seq[Byte]]): Option[Int] = {
+    bytes.map { bs =>
+      require(bs.length <= 4, "Byte sequence too long for Int conversion")
+      // this assumes big-endian (most significant byte first)
+      bs.foldLeft(0) { (acc, byte) => (acc << 8) | (byte & 0xff) }
+    }
+  }
+
   def attrBytesCheck(id: Identifier, bytes: Ast.expr, t: BytesType, shouldDependOnIoOrig: Option[Boolean]): Unit = {
     val shouldDependOnIo: Option[Boolean] =
       if (t.process.isDefined) {
@@ -267,7 +282,7 @@ trait GenericChecks extends LanguageCompiler with EveryReadIsExpression {
         }
         blt.terminator match {
           case Some(term) => {
-            val actualIndexOfTerm = exprByteArrayIndexOf(bytes, term)
+            val actualIndexOfTerm = exprByteArrayIndexOf(bytes, intOfBytes(term))
             val isPadRightActive = blt.padRight.map(padByte => padByte != term).getOrElse(false)
             if (!blt.include) {
               if (canUseNonIoDependent) {
@@ -313,7 +328,7 @@ trait GenericChecks extends LanguageCompiler with EveryReadIsExpression {
       }
       case btt: BytesTerminatedType => {
         if (canUseNonIoDependent) {
-          val actualIndexOfTerm = exprByteArrayIndexOf(bytes, btt.terminator)
+          val actualIndexOfTerm = exprByteArrayIndexOf(bytes, intOfBytes(btt.terminator))
           val lastByteIndex: Ast.expr = Ast.expr.BinOp(actualSize, Ast.operator.Sub, Ast.expr.IntNum(1))
           val expectedIndexOfTerm = if (btt.include) {
             if (btt.eosError) {
