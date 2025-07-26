@@ -1,0 +1,7 @@
+rename "intOfBytes" to "bytesToInt"
+to make it consistent with the codebase
+
+avoid "override def intOfBytes"
+(or "override def bytesToInt")
+in all
+shared/src/main/scala/io/kaitai/struct/languages/*Compiler.scala
