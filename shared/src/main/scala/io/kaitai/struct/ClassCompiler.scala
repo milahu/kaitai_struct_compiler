@@ -424,11 +424,11 @@ class ClassCompiler(
           lang.instanceToWriteSetter(instName)
           lang.writeInstanceHeader(instName)
           lang.attrWrite(pi, instName, endian)
-          lang.writeInstanceFooter
+          lang.writeInstanceFooter()
 
           lang.checkInstanceHeader(instName)
           lang.attrCheck(pi, instName)
-          lang.checkInstanceFooter
+          lang.checkInstanceFooter()
         case _: ValueInstanceSpec =>
           lang.instanceInvalidate(instName)
       }
