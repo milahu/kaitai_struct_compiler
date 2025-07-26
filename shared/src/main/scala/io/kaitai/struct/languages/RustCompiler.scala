@@ -1232,7 +1232,8 @@ class RustCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
     err: KSError,
-    errArgs: List[Ast.expr]
+    errArgs: List[Ast.expr],
+    useIo: Boolean,
   ): Unit = {
     val srcPathStr = translator.translate(Ast.expr.Str(attr.path.mkString("/", "/", "")))
     val validationKind = RustCompiler.validationErrorKind(err.asInstanceOf[ValidationError])
