@@ -257,6 +257,8 @@ abstract trait CommonMethods[T] extends TypeDetector {
   def strSubstring(s: Ast.expr, from: Ast.expr, to: Ast.expr): T
   def strToBytes(s: Ast.expr, encoding: Ast.expr): T = ???
 
+  // TODO add "bytesToInt" from "intOfBytes"?
+  // def bytesToInt(value: Ast.expr): T
   def bytesToStr(value: Ast.expr, encoding: String): T
   def bytesIndexOf(value: Ast.expr, expr: Ast.expr): T = ???
 
