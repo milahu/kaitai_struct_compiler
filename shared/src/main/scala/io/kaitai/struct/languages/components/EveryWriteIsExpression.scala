@@ -218,13 +218,13 @@ trait EveryWriteIsExpression
     attrBytesTypeWrite2(id, io, bytes, t.bytes, checksShouldDependOnIo, exprTypeOpt)
   }
 
-  def intOfBytes(bytes: Seq[Byte]): Int = {
+  override def intOfBytes(bytes: Seq[Byte]): Int = {
     require(bytes.length <= 4, "Byte sequence too long for Int conversion")
     // this assumes big-endian (most significant byte first)
     bytes.foldLeft(0) { (acc, byte) => (acc << 8) | (byte & 0xff) }
   }
 
-  def intOfBytes(bytes: Option[Seq[Byte]]): Option[Int] = {
+  override def intOfBytes(bytes: Option[Seq[Byte]]): Option[Int] = {
     bytes.map { bs =>
       require(bs.length <= 4, "Byte sequence too long for Int conversion")
       // this assumes big-endian (most significant byte first)
