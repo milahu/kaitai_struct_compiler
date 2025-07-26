@@ -572,10 +572,13 @@ class GoCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
     err: KSError,
+    errArgs: List[Ast.expr],
     useIo: Boolean,
-    expected: Option[Ast.expr] = None
+    // expected: Option[Ast.expr] = None
   ): Unit = {
-    val errArgsStr = expected.map(expression) ++ List(
+    // TODO what is "expected"? use "errArgs"?
+    // val errArgsStr = expected.map(expression) ++ List(
+    val errArgsStr = List(
       expression(Ast.expr.InternalName(attr.id)),
       if (useIo) expression(Ast.expr.InternalName(IoIdentifier)) else "nil",
       expression(Ast.expr.Str(attr.path.mkString("/", "/", "")))
