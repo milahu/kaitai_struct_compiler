@@ -60,11 +60,11 @@ class JavaTranslator(provider: TypeProvider, importList: ImportList, config: Run
     }
   }
 
-  override def doNumericCompareOp(left: expr, op: cmpop, right: expr): String =
-    s"(${super.doNumericCompareOp(left, op, right)})"
+  override def doNumericCompareOp(left: expr, op: cmpop, right: expr, extPrec: Int): String =
+    s"(${super.doNumericCompareOp(left, op, right, extPrec)})"
 
-  override def doEnumCompareOp(left: expr, op: cmpop, right: expr): String =
-    s"(${super.doEnumCompareOp(left, op, right)})"
+  override def doEnumCompareOp(left: expr, op: cmpop, right: expr, extPrec: Int): String =
+    s"(${super.doEnumCompareOp(left, op, right, extPrec)})"
 
   override def doName(s: String) =
     s match {
