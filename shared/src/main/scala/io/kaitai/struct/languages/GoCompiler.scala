@@ -600,7 +600,9 @@ class GoCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     et: EnumType,
     valueExpr: Ast.expr,
     err: ValidationNotInEnumError,
-    errArgs: List[Ast.expr]
+    errArgs: List[Ast.expr],
+    // TODO fix merge? use "useIo" parameter
+    useIo: Boolean,
   ): Unit =
     attrValidate(s"!${translator.translate(valueExpr)}.isDefined()", err, errArgs)
 
