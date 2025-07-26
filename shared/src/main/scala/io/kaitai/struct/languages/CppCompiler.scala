@@ -1061,30 +1061,42 @@ class CppCompiler(
       s"kaitai::$cppErrName<$cppType>"
   }
 
-  // TODO fix merge?
+  // TODO fix merge? add parameter "expected" at call site?
   // master branch:
   /*
   override def attrValidateExpr(
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
     err: KSError,
-    errArgs: List[Ast.expr]
+    errArgs: List[Ast.expr],
+    useIo: Boolean,
   ): Unit =
-    attrValidate(s"!(${translator.translate(checkExpr)})", err, errArgs)
+    attrValidate(s"!(${translator.translate(checkExpr)})", err, errArgs, useIo)
   */
   override def attrValidateExpr(
     attr: AttrLikeSpec,
     checkExpr: Ast.expr,
     err: KSError,
+    errArgs: List[Ast.expr],
     useIo: Boolean,
-    expected: Option[Ast.expr] = None
+    // TODO fix merge? add parameter "expected" at call site?
+    expected: Option[Ast.expr] = None,
   ): Unit = {
+
+    // TODO fix merge?
+    // master branch:
+    /*
+    val errArgsStr = errArgs.map(translator.translate).mkString(", ")
+    */
     val errArgsStr = expected.map(expression) ++ List(
       expression(Ast.expr.InternalName(attr.id)),
       if (useIo) expression(Ast.expr.InternalName(IoIdentifier)) else nullPtr,
       expression(Ast.expr.Str(attr.path.mkString("/", "/", "")))
     )
+
     importListSrc.addKaitai("kaitai/exceptions.h")
+    // outSrc.puts(s"if (!(${translator.translate(checkExpr)})) {")
+    val failCondExpr = s"!(${translator.translate(checkExpr)})"
     outSrc.puts(s"if ($failCondExpr) {")
     outSrc.inc
     outSrc.puts(s"throw ${ksErrorName(err)}(${errArgsStr.mkString(", ")});")
@@ -1097,15 +1109,22 @@ class CppCompiler(
     et: EnumType,
     valueExpr: Ast.expr,
     err: ValidationNotInEnumError,
-    errArgs: List[Ast.expr]
+    errArgs: List[Ast.expr],
+    useIo: Boolean,
   ): Unit = {
     val enumSpec = et.enumSpec.get
     val inClassRef = types2class(enumSpec.name.dropRight(1))
     val enumNameStr = type2class(enumSpec.name.last)
-    attrValidate(s"!$inClassRef::_is_defined_$enumNameStr(${translator.translate(valueExpr)})", err, errArgs)
+    attrValidate(s"!$inClassRef::_is_defined_$enumNameStr(${translator.translate(valueExpr)})", err, errArgs, useIo)
   }
 
-  private def attrValidate(failCondExpr: String, err: KSError, errArgs: List[Ast.expr]): Unit = {
+  private def attrValidate(
+    failCondExpr: String,
+    err: KSError,
+    errArgs: List[Ast.expr],
+    useIo: Boolean,
+  ): Unit = {
+    // TODO fix merge? use parameter "expected"
     val errArgsStr = errArgs.map(translator.translate).mkString(", ")
     importListSrc.addKaitai("kaitai/exceptions.h")
     outSrc.puts(s"if ($failCondExpr) {")
