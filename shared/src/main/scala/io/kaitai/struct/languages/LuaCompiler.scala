@@ -481,10 +481,13 @@ class LuaCompiler(typeProvider: ClassTypeProvider, config: RuntimeConfig)
     out.inc
     val msg = err match {
       case _: ValidationNotEqualError => {
-        val expectedStr = expected.get
-        s""""not equal, expected " .. $expectedStr .. ", but got " .. $actualStr"""
+        val (expected, actual) = (
+          errArgsCode.lift(0).getOrElse("[expected]"),
+          errArgsCode.lift(1).getOrElse("[actual]")
+        )
+        s""""not equal, expected " ..  $expected .. ", but got " .. $actual"""
       }
-      case _ => expression(Ast.expr.Str(ksErrorName(err)))
+      case _ => "\"" + ksErrorName(err) + "\""
     }
     out.puts(s"error($msg)")
     out.dec
