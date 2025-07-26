@@ -32,17 +32,12 @@ class JavaTranslator(provider: TypeProvider, importList: ImportList, config: Run
   }
 
   override def doArrayLiteral(t: DataType, value: Seq[expr]): String = {
-
     // TODO fix merge?
-    // the master branch version does not use config for compiler?
-    // serialization branch:
-    /*
+    // master branch:
+    // val javaType = JavaCompiler.kaitaiType2JavaTypeBoxed(t, importList)
     // FIXME
     val compiler = new JavaCompiler(provider.asInstanceOf[ClassTypeProvider], config)
     val javaType = compiler.kaitaiType2JavaTypeBoxed(t)
-    */
-    // master branch:
-    val javaType = JavaCompiler.kaitaiType2JavaTypeBoxed(t, importList)
 
     val commaStr = value.map((v) => translate(v)).mkString(", ")
 
